@@ -1,6 +1,6 @@
 package com.maxpolun.redditstream;
 
-public class LinkData {
+public class LinkData extends Data{
 	public String author;
 	public String author_flair_css_class;
 	public String author_flair_text;

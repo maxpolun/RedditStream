@@ -1,7 +1,5 @@
 package com.maxpolun.redditstream;
 
-import java.net.URL;
-
 public class RedditStream {
 	RedditStream(){}
 	
