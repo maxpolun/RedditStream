@@ -4,8 +4,8 @@ package com.maxpolun.redditstream;
  * generates the routes used used in the rest of the package
  */
 public class Router {
-	public static String loginRoute() {
-		return "https://ssl.reddit.com/api/login";
+	public static String loginRoute(User u) {
+		return "https://ssl.reddit.com/api/login" + u.name;
 	}
 	public static String submitRoute() {
 		return "http://www.reddit.com/api/submit";
