@@ -27,7 +27,7 @@ public class User {
 		passwd = password;
 	}
 
-	public void readJson(JsonParser parser) throws JsonParseException, IOException {
+	public void readJson(JsonParser parser) throws JsonParseException, IOException, UserLoginException {
 		JsonToken tok = parser.nextToken();
 		if(tok != JsonToken.START_OBJECT) {
 			throw new IllegalStateException("expected json response to start with an object, got a " + tok.toString() + " instead");
@@ -40,7 +40,7 @@ public class User {
 		
 	}
 
-	private void readJsonObject(JsonParser parser) throws JsonParseException, IOException {
+	private void readJsonObject(JsonParser parser) throws JsonParseException, IOException, UserLoginException {
 		JsonToken tok = parser.nextToken();
 		if(tok != JsonToken.START_OBJECT) {
 			throw new IllegalStateException("expected json object to start an object, got a " + tok.toString() + " instead");
@@ -60,7 +60,7 @@ public class User {
 	private void readData(JsonParser parser) throws JsonParseException, IOException {
 		JsonToken tok = parser.nextToken();
 		if(tok != JsonToken.START_OBJECT) {
-			throw new IllegalStateException("expected json object to start an object, got a " + tok.toString() + " instead");
+			throw new IllegalStateException("expected data object to start an object, got a " + tok.toString() + " instead");
 		}
 		tok = parser.nextToken();
 		while(tok != JsonToken.END_OBJECT) {
@@ -70,11 +70,34 @@ public class User {
 			} else if(field.equals("cookie")) {
 				this.reddit_session = parser.nextTextValue();
 			}
+			tok = parser.nextToken();
 		}
 	}
 
-	private void readErrors(JsonParser parser) {
-		// TODO Auto-generated method stub
-		
+	private void readErrors(JsonParser parser) throws UserLoginException, JsonParseException, IOException {
+		JsonToken tok = parser.nextToken();
+		if(tok != JsonToken.START_ARRAY) {
+			throw new IllegalStateException("expected json object to start an object, got a " + tok.toString() + " instead");
+		}
+		tok = parser.nextToken();
+		while(tok != JsonToken.END_ARRAY) {
+			readErrorArray(parser);
+			tok = parser.nextToken();
+		}
+	}
+
+	private void readErrorArray(JsonParser parser) throws JsonParseException, IOException, UserLoginException {
+		JsonToken tok = parser.getCurrentToken();
+		if(tok != JsonToken.START_ARRAY) {
+			throw new IllegalStateException("expected error array to start an array, got a " + tok.toString() + " instead");
+		}
+		tok = parser.nextToken();
+		while(tok != JsonToken.END_ARRAY) {
+			String value = parser.getText();
+			if(value.equals("WRONG_PASSWORD")){
+				throw new UserLoginException(); 
+			}
+			tok = parser.nextToken();
+		}
 	}
 }

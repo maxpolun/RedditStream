@@ -6,11 +6,12 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.maxpolun.redditstream.User.UserLoginException;
 
 public class TestUser {
 
 	@Test
-	public void ReadJsonSuccess() {
+	public void readJsonSuccess() {
 		String testJson = "{\"json\":{" +
 					"\"errors\":[]," + 
 					"\"data\":{" +
@@ -32,6 +33,29 @@ public class TestUser {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("expected no exceptions to be thrown");
+		}
+	}
+	
+	@Test
+	public void readJsonFailure(){
+		String testJson = "{\"json\":{" +
+		"\"errors\":[[" +
+			"\"WRONG_PASSWORD\","+
+			"\"invalid password\","+
+			"\"passwd\""+
+		"]]," + 
+	"}}";
+		JsonFactory factory = new JsonFactory();
+		User u = new User("test", "password");
+		try {
+			JsonParser parser = factory.createJsonParser(testJson);
+			u.readJson(parser);
+			fail("expected readJson to throw a UserLoginException, but it didn't.");
+		} catch (UserLoginException e) {
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Got the wrong exception");
 		}
 	}
 

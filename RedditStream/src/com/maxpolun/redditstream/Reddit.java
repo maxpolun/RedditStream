@@ -11,6 +11,7 @@ import java.net.URLEncoder;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.maxpolun.redditstream.User.UserLoginException;
 
 public class Reddit {
 	public String userAgent;
@@ -18,7 +19,7 @@ public class Reddit {
 	public Reddit(String ua){
 		userAgent = ua;
 	}
-	public User login(String username, String password) throws IOException {
+	public User login(String username, String password) throws IOException, UserLoginException {
 		User u = new User(username, password);
 		URL url = new URL(Router.loginRoute(u) + "api_type=json&user=" + URLEncoder.encode(u.name, "UTF-8") +
 				"&passwd=" + URLEncoder.encode(u.passwd, "UTF-8"));
