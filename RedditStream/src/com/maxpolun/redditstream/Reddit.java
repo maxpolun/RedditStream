@@ -3,14 +3,17 @@ package com.maxpolun.redditstream;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import com.maxpolun.redditstream.LinkListing.OnItemListener;
 import com.maxpolun.redditstream.User.UserLoginException;
 
 public class Reddit {
@@ -19,12 +22,31 @@ public class Reddit {
 	public Reddit(String ua){
 		userAgent = ua;
 	}
+	
+	public void visitSubreddit(String subredditName, User user, OnItemListener listener) throws IOException{
+		URL url = new URL(Router.subredditRoute(subredditName));
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		conn.setRequestProperty("User-Agent", userAgent);
+		conn.setRequestMethod("GET");
+		if(user != null && user.reddit_session != null) {
+			conn.setRequestProperty("Cookie", "reddit_session="+user.reddit_session);
+		}
+		conn.setDoInput(true);
+		Reader r = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		
+		JsonFactory factory = new JsonFactory();
+		JsonParser parser = factory.createJsonParser(r);
+		
+		LinkListing ll = new LinkListing(parser, listener);
+		ll.run();
+	}
+	
 	public User login(String username, String password) throws IOException, UserLoginException {
 		User u = new User(username, password);
 		URL url = new URL(Router.loginRoute(u) + "api_type=json&user=" + URLEncoder.encode(u.name, "UTF-8") +
 				"&passwd=" + URLEncoder.encode(u.passwd, "UTF-8"));
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		
+
 		
 		Reader resp = postUserLogin(u, conn);
 		JsonFactory factory = new JsonFactory();
